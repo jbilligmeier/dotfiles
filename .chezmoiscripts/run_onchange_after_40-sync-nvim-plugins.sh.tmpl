@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Sync LazyVim plugins whenever the nvim plugin config changes.
+# plugins hash: {{ output "sh" "-c" (printf "cat %s/dot_config/nvim/lua/plugins/*.lua %s/dot_config/nvim/create_lazyvim.json" .chezmoi.sourceDir .chezmoi.sourceDir) | sha256sum }}
+set -euo pipefail
+command -v nvim >/dev/null || exit 0
+echo "Syncing Neovim plugins"
+# Two passes: on a fresh machine the first only bootstraps lazy.nvim + LazyVim
+for _ in 1 2; do
+  nvim --headless '+Lazy! sync' +qa >/dev/null 2>&1 || { echo "Neovim plugin sync failed; run :Lazy sync in nvim" >&2; exit 0; }
+done

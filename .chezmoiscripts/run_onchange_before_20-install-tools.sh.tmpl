@@ -1,0 +1,61 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Install tools that aren't in apt (or whose apt version is too old) into
+# ~/.local/bin from their GitHub releases. Skips anything already on PATH.
+# Bump a version here to make chezmoi re-run this script.
+set -euo pipefail
+
+BIN="$HOME/.local/bin"
+COMPLETIONS="$HOME/.local/share/zsh/site-functions"
+ARCH="{{ if eq .chezmoi.arch "arm64" }}aarch64{{ else }}x86_64{{ end }}"
+mkdir -p "$BIN" "$COMPLETIONS"
+tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+
+have() { command -v "$1" >/dev/null 2>&1; }
+gh_latest() { curl -fsSL "https://api.github.com/repos/$1/releases/latest" | jq -r .tag_name; }
+
+if ! have starship; then
+  echo "Installing starship"
+  curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$BIN"
+fi
+
+if ! have zellij; then
+  echo "Installing zellij"
+  v="$(gh_latest zellij-org/zellij)"
+  curl -fsSL "https://github.com/zellij-org/zellij/releases/download/$v/zellij-$ARCH-unknown-linux-musl.tar.gz" | tar -xz -C "$BIN" zellij
+  "$BIN/zellij" setup --generate-completion zsh > "$COMPLETIONS/_zellij"
+fi
+
+if ! have vivid; then
+  echo "Installing vivid"
+  v="$(gh_latest sharkdp/vivid)"
+  curl -fsSL "https://github.com/sharkdp/vivid/releases/download/$v/vivid-$v-$ARCH-unknown-linux-musl.tar.gz" | tar -xz -C "$tmp"
+  install -m 755 "$tmp/vivid-$v-$ARCH-unknown-linux-musl/vivid" "$BIN/vivid"
+fi
+
+# LazyVim needs Neovim >= 0.11.2; install a release build if apt's is older
+nvim_ok() {
+  have nvim || return 1
+  local v; v="$(nvim --version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')"
+  [ "$(printf '%s\n0.11.2\n' "$v" | sort -V | head -1)" = "0.11.2" ]
+}
+if ! nvim_ok; then
+  echo "Installing Neovim release build"
+  curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-$ARCH.tar.gz" | tar -xz -C "$HOME/.local/share"
+  ln -sf "$HOME/.local/share/nvim-linux-$ARCH/bin/nvim" "$BIN/nvim"
+fi
+
+# nvim-treesitter needs the tree-sitter CLI (plus a C compiler) to build parsers
+if ! have tree-sitter; then
+  echo "Installing tree-sitter CLI"
+  ts_arch="{{ if eq .chezmoi.arch "arm64" }}arm64{{ else }}x64{{ end }}"
+  curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-$ts_arch.gz" | gunzip > "$BIN/tree-sitter"
+  chmod 755 "$BIN/tree-sitter"
+fi
+
+if ! have nvimpager; then
+  echo "Installing nvimpager"
+  git clone -q --depth 1 https://github.com/lucc/nvimpager.git "$tmp/nvimpager"
+  make -s -C "$tmp/nvimpager" PREFIX="$HOME/.local" install-no-man
+fi
+{{ end -}}

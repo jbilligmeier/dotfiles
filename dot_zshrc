@@ -1,0 +1,165 @@
+# Managed by chezmoi: edit with `chezmoi edit ~/.zshrc` (or `cz edit ~/.zshrc`),
+# not directly. Source lives in ~/.local/share/chezmoi.
+
+# Path to your Oh My Zsh installation.
+export ZSH=$HOME/.oh-my-zsh
+
+# User-local binaries (chezmoi, pipx, tools installed by chezmoi scripts)
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+# Add site-functions to fpath for completions (Starship, Zellij, etc)
+fpath=(/usr/local/share/zsh/site-functions $HOME/.local/share/zsh/site-functions $fpath)
+
+# Starship draws the prompt, so no oh-my-zsh theme
+ZSH_THEME=""
+
+DISABLE_AUTO_UPDATE=true
+DISABLE_UPDATE_PROMPT=true
+
+plugins=(
+    git
+    git-commit
+    gh
+    npm
+    ubuntu
+    history
+    history-substring-search
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# Initialize Starship prompt
+eval "$(starship init zsh)"
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt inc_append_history       # Save commands as they're typed
+setopt share_history            # Share history between sessions
+alias history='fc -l -200'      # Show a lot more history by default
+
+# Use nvim by default
+alias vi=nvim
+
+# Dotfiles (chezmoi)
+alias cz=chezmoi
+# Pull latest dotfiles, apply them, and reload the shell
+alias reload='chezmoi update && rm -f ~/.zcompdump* && source ~/.zshrc && rehash'
+
+# Better tools
+alias ls='eza --icons --group-directories-first --color=always'
+alias ll='eza -l --icons --group-directories-first --color=always'
+alias la='eza -la --icons --group-directories-first --color=always'
+alias tree='eza --tree --git-ignore --color=always'
+alias cat='batcat'
+alias top='btop'
+(( $+commands[nvimpager] )) && alias more='nvimpager -p'
+
+# Alias terraform
+alias tf=terraform
+
+# fd
+alias fdfind='fdfind --color=always'
+alias f=fdfind
+alias v='nvim $(fdfind --color=never | fzf)'
+
+# rocketgrep
+alias rg='rg --glob "!*.csv"'
+
+# Lets exclude some stuff from grep
+alias grep="grep --exclude-dir=node_modules --exclude-dir='.*' --exclude='*.map'"
+
+# Git alias to show all changes including untracked files
+alias gdall='git add -N . && git diff'
+
+# Override oh-my-zsh gst to fetch before showing status
+alias gst='git fetch --all --quiet && git status'
+
+# claude code aliases
+alias cld=claude
+alias cldy='claude --dangerously-skip-permissions'
+
+# Set LS_COLORS using vivid with tokyo-night theme
+# This applies to fd, ls, and other file-listing tools
+if (( $+commands[vivid] )); then
+  export LS_COLORS="$(vivid generate tokyonight-night)"
+else
+  # Don't draw warning boxes around group/other-writable directories
+  export LS_COLORS="${LS_COLORS}:ow=01;34"
+fi
+
+# Setup editor
+export EDITOR=nvim
+
+# Setup less with color support as default pager
+export PAGER="less -R"
+
+# Enable aws and terraform autocomplete
+autoload -Uz compinit && compinit
+autoload -Uz bashcompinit && bashcompinit
+(( $+commands[aws_completer] )) && complete -C "$commands[aws_completer]" aws
+(( $+commands[terraform] )) && complete -o nospace -C "$commands[terraform]" terraform
+
+# Machine-specific settings and secrets that don't belong in the dotfiles repo
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Warn when managed dotfiles have drifted from the chezmoi source
+# (e.g. someone edited ~/.zshrc directly). Fix with `cz re-add` or `cz apply`.
+if (( $+commands[chezmoi] )) && ! chezmoi verify >/dev/null 2>&1; then
+  echo -e "\033[1;33mDotfiles differ from chezmoi source. Run \`cz diff\` to see what changed.\033[0m"
+fi
+
+function shortcuts() {
+    echo -e "\033[1;34m===============================================\033[0m"
+    echo -e "\033[1;32m            Zsh Keyboard Shortcuts            \033[0m"
+    echo -e "\033[1;34m===============================================\033[0m"
+    echo ""
+
+    echo -e "\033[1;33mHistory Navigation:\033[0m"
+    echo -e "\033[1;36m - ctrl+p: \033[1;37mPrevious history\033[0m  Move to previous command in history"
+    echo -e "\033[1;36m - ctrl+n: \033[1;37mNext history\033[0m      Move to next command in history"
+    echo -e "\033[1;36m - ctrl+r: \033[1;37mSearch history\033[0m    Search through command history interactively"
+    echo ""
+
+    echo -e "\033[1;33mTermius:\033[0m"
+    echo -e "\033[1;36m - CMD+Shift+]:    \033[1;37mNext Tab\033[0m"
+    echo -e "\033[1;36m - CMD+Shift+[:    \033[1;37mPrev Tab\033[0m"
+    echo -e "\033[1;36m - CMD+Opt+Arrow:  \033[1;37mMove focus between Split View panes\033[0m"
+    echo -e "\033[1;36m - CMD+1-9:        \033[1;37mSwitch Tab (1 Vaults, 2 SFTP, 3 First Tab, 4 Second Tab)\033[0m"
+    echo ""
+}
+
+# Show terminal colors vs standard xterm colors
+function colors() {
+  printf " Foreground  \n"
+  printf "\e[7m Background  \e[0m\n"
+
+  local colors=(Black Red Green Yellow Blue Magenta Cyan White)
+
+  # Standard xterm RGB values [R, G, B]
+  declare -A xterm_rgb=(
+    [0]="0 0 0"        # Black
+    [1]="205 0 0"      # Red
+    [2]="0 205 0"      # Green
+    [3]="205 205 0"    # Yellow
+    [4]="0 0 238"      # Blue
+    [5]="205 0 205"    # Magenta
+    [6]="0 205 205"    # Cyan
+    [7]="229 229 229"  # White
+    [8]="127 127 127"  # Bright Black
+    [9]="255 0 0"      # Bright Red
+    [10]="0 255 0"     # Bright Green
+    [11]="255 255 0"   # Bright Yellow
+    [12]="92 92 255"   # Bright Blue
+    [13]="255 0 255"   # Bright Magenta
+    [14]="0 255 255"   # Bright Cyan
+    [15]="255 255 255" # Bright White
+  )
+
+  for i in {0..7}; do
+    rgb1=(${=xterm_rgb[$i]})
+    rgb2=(${=xterm_rgb[$((i+8))]})
+    printf "\e[48;5;${i}m %2s: %-7s \e[0m\e[48;2;${rgb1[1]};${rgb1[2]};${rgb1[3]}m  \e[0m" "$i" "${colors[$i+1]}"
+    printf "\e[48;5;$((i+8))m %2s: %-7s \e[0m\e[48;2;${rgb2[1]};${rgb2[2]};${rgb2[3]}m  \e[0m\n" "$((i+8))" "${colors[$i+1]}"
+  done
+}

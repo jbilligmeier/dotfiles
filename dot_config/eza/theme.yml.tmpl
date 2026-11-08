@@ -1,0 +1,5 @@
+{{- /* Tokyo Night base theme (vendored in .eza/tokyonight.yml) deep-merged with
+       custom colors from .eza/extensions.yml. Edit extensions.yml, not this. */ -}}
+{{- $base := include ".eza/tokyonight.yml" | fromYaml -}}
+{{- $ext := include ".eza/extensions.yml" | fromYaml -}}
+{{- mergeOverwrite $base $ext | toYaml -}}

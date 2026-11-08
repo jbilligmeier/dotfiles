@@ -1,0 +1,50 @@
+// Simple Zellij configuration
+// For full default config, run: zellij setup --dump-config
+
+// Use zsh as the default shell
+default_shell "zsh"
+
+// Start with custom layout (2 tabs: Claude + Shell)
+default_layout "default"
+
+// Enable mouse support
+mouse_mode true
+
+// Disable mouse hover effects and pane selection (prevents escape sequence issues)
+advanced_mouse_actions false
+
+// Scrollback buffer size (lines to keep in history)
+scroll_buffer_size 10000
+
+// Copy to system clipboard (Linux/X11)
+// Uncomment for wayland: copy_command "wl-copy"
+// Uncomment for macOS: copy_command "pbcopy"
+// copy_command "xclip -selection clipboard"
+
+// Use catppuccin-macchiato theme
+// Available themes: default, dracula, nord, gruvbox, tokyo-night, catppuccin-*
+theme "tokyo-night"
+
+ui {
+    pane_frames {
+        rounded_corners true
+    }
+}
+
+// Disable session serialization to prevent restoring previous commands
+session_serialization false
+
+// Disable Kitty Keyboard Protocol (can cause keybinding delays)
+support_kitty_keyboard_protocol false
+
+// Disable welcome screen/startup tips
+show_startup_tips false
+
+// Use default keybindings
+// Press Ctrl+g to see help and available modes
+// Main modes:
+//   Ctrl+p - Pane mode (create/navigate panes)
+//   Ctrl+t - Tab mode (create/navigate tabs)
+//   Ctrl+n - Resize mode
+//   Ctrl+s - Scroll mode
+//   Ctrl+o - Session mode

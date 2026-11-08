@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# AWS credential_process helper: reads the claude-atlas access key from 1Password
+# (vault Infra, item aws-claude-atlas) and prints it in the format the AWS SDKs
+# expect. Nothing is written to disk; the 1Password service account token is read
+# from its own mode-600 file.
+set -euo pipefail
+
+token_file="${HOME}/.config/op/service-account-token"
+item="op://Infra/aws-claude-atlas"
+
+if [ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
+  [ -r "$token_file" ] || { echo "aws-creds-from-op: no token at $token_file" >&2; exit 1; }
+  OP_SERVICE_ACCOUNT_TOKEN="$(<"$token_file")"
+  export OP_SERVICE_ACCOUNT_TOKEN
+fi
+
+key_id="$(op read "${item}/username")"
+secret="$(op read "${item}/credential")"
+
+jq -n --arg id "$key_id" --arg secret "$secret" \
+  '{Version: 1, AccessKeyId: $id, SecretAccessKey: $secret}'

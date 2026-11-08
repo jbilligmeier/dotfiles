@@ -1,0 +1,41 @@
+# ABOUTME: Custom file extension configurations for eza that get merged with base theme
+# Format: extension: {filename: {foreground: "#color"}, icon: {glyph: 🎨}}
+
+extensions:
+  # Python
+  py: {filename: {foreground: "#bb9af7"}}
+
+  # JavaScript/TypeScript
+  js: {filename: {foreground: "#e0af68"}}
+  ts: {filename: {foreground: "#bb9af7"}}
+  tsx: {filename: {foreground: "#bb9af7"}}
+  jsx: {filename: {foreground: "#e0af68"}}
+
+  # Web
+  html: {filename: {foreground: "#ff9e64"}}
+  css: {filename: {foreground: "#7dcfff"}}
+  scss: {filename: {foreground: "#bb9af7"}}
+
+  # Markdown/Documentation
+  md: {filename: {foreground: "#c0caf5"}}
+  rst: {filename: {foreground: "#c0caf5"}}
+
+  # Configuration
+  json: {filename: {foreground: "#e0af68"}}
+  yaml: {filename: {foreground: "#bb9af7"}}
+  yml: {filename: {foreground: "#bb9af7"}}
+  toml: {filename: {foreground: "#bb9af7"}}
+  ini: {filename: {foreground: "#9d7cd8"}}
+
+  # Shell
+  sh: {filename: {foreground: "#9ece6a"}}
+  bash: {filename: {foreground: "#9ece6a"}}
+  zsh: {filename: {foreground: "#9ece6a"}}
+
+filenames:
+  # Special files
+  Dockerfile: {filename: {foreground: "#7aa2f7"}}
+  "docker-compose.yml": {filename: {foreground: "#7aa2f7"}}
+  Makefile: {filename: {foreground: "#9ece6a"}}
+  README.md: {filename: {foreground: "#c0caf5", is_bold: true}}
+  CLAUDE.md: {filename: {foreground: "#bb9af7", is_bold: true}}

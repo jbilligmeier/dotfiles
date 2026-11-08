@@ -1,0 +1,22 @@
+{{ if and (eq .chezmoi.os "linux") (lookPath "apt-get") -}}
+#!/usr/bin/env bash
+# Install apt packages. Re-runs whenever this list changes; only calls sudo
+# when something is actually missing.
+set -euo pipefail
+
+packages=(
+  zsh git git-lfs curl wget unzip make jq
+  ripgrep fd-find fzf bat eza btop tmux neovim build-essential
+)
+
+missing=()
+for p in "${packages[@]}"; do
+  dpkg -s "$p" >/dev/null 2>&1 || missing+=("$p")
+done
+
+if (( ${#missing[@]} )); then
+  echo "Installing apt packages: ${missing[*]}"
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq "${missing[@]}"
+fi
+{{ end -}}

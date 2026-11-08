@@ -55,6 +55,9 @@ alias cat='batcat'
 alias top='btop'
 (( $+commands[nvimpager] )) && alias more='nvimpager -p'
 
+# zellij: attach to Console1 (or a named session), kicking other clients
+alias zj=zellij-wrapper
+
 # Alias terraform
 alias tf=terraform
 

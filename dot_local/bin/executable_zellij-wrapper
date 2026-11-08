@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# ABOUTME: Attach to a zellij session, first kicking any other clients attached
+# to it (e.g. a zombie Termius connection), creating the session if needed.
+# Zellij has no built-in "detach others" (like tmux attach -d), hence this.
+# Usage: zellij-wrapper [SESSION]   (default: Console1)
+
+SESSION="${1:-Console1}"
+
+# Kill this user's other clients attached to exactly this session
+pkill -u "$USER" -f "zellij attach ${SESSION}( |$)" 2>/dev/null || true
+
+# Replace this process with zellij
+exec zellij attach "$SESSION" --create

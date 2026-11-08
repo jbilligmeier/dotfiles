@@ -46,12 +46,22 @@ alias cz=chezmoi
 # Pull latest dotfiles, apply them, and reload the shell
 alias reload='chezmoi update && rm -f ~/.zcompdump* && source ~/.zshrc && rehash'
 
-# Better tools
-alias ls='eza --icons --group-directories-first --color=always'
-alias ll='eza -l --icons --group-directories-first --color=always'
-alias la='eza -la --icons --group-directories-first --color=always'
-alias tree='eza --tree --git-ignore --color=always'
-alias cat='batcat'
+# Better tools. eza and fd color output only on a terminal (their default
+# "auto"), so pipes and programs get plain text. Never use --color=always here:
+# it sends escape codes into pipes and into Claude Code's shell.
+# Claude Code (CLAUDECODE=1) copies these aliases into its own shell, so the
+# swaps that change output or behavior are only for interactive use.
+if [[ -z "$CLAUDECODE" ]]; then
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -l --icons --group-directories-first'
+  alias la='eza -la --icons --group-directories-first'
+  alias tree='eza --tree --git-ignore'
+  alias cat='batcat'
+  # rocketgrep: skip CSVs
+  alias rg='rg --glob "!*.csv"'
+  # Lets exclude some stuff from grep
+  alias grep="grep --exclude-dir=node_modules --exclude-dir='.*' --exclude='*.map'"
+fi
 alias top='btop'
 (( $+commands[nvimpager] )) && alias more='nvimpager -p'
 
@@ -62,15 +72,8 @@ alias zj=zellij-wrapper
 alias tf=terraform
 
 # fd
-alias fdfind='fdfind --color=always'
 alias f=fdfind
-alias v='nvim $(fdfind --color=never | fzf)'
-
-# rocketgrep
-alias rg='rg --glob "!*.csv"'
-
-# Lets exclude some stuff from grep
-alias grep="grep --exclude-dir=node_modules --exclude-dir='.*' --exclude='*.map'"
+alias v='nvim $(fdfind --type f | fzf)'
 
 # Git alias to show all changes including untracked files
 alias gdall='git add -N . && git diff'

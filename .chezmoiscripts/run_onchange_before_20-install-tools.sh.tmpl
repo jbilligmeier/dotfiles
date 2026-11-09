@@ -19,6 +19,11 @@ if ! have starship; then
   curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$BIN"
 fi
 
+if ! have eza; then
+  echo "Installing eza"
+  curl -fsSL "https://github.com/eza-community/eza/releases/latest/download/eza_$ARCH-unknown-linux-gnu.tar.gz" | tar -xz -C "$BIN"
+fi
+
 if ! have zellij; then
   echo "Installing zellij"
   v="$(gh_latest zellij-org/zellij)"

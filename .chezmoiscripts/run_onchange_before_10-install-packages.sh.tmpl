@@ -15,8 +15,16 @@ for p in "${packages[@]}"; do
 done
 
 if (( ${#missing[@]} )); then
-  echo "Installing apt packages: ${missing[*]}"
   sudo apt-get update -qq
-  sudo apt-get install -y -qq "${missing[@]}"
+  # Older distros (e.g. Debian bookworm in dev containers) lack some packages,
+  # like eza; skip those here and let the tools script fetch them.
+  available=()
+  for p in "${missing[@]}"; do
+    if apt-cache show "$p" >/dev/null 2>&1; then available+=("$p"); else echo "Skipping $p (not in apt)"; fi
+  done
+  if (( ${#available[@]} )); then
+    echo "Installing apt packages: ${available[*]}"
+    sudo apt-get install -y -qq "${available[@]}"
+  fi
 fi
 {{ end -}}

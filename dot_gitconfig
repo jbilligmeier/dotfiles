@@ -12,6 +12,31 @@
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[fetch]
+	prune = true
+[rebase]
+	autoStash = true
+[rerere]
+	enabled = true
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[merge]
+	conflictStyle = zdiff3
+# delta draws diffs with syntax highlighting; fall back to less/cat without it
+[core]
+	pager = command -v delta >/dev/null && delta || less
+[interactive]
+	diffFilter = command -v delta >/dev/null && delta --color-only || cat
+[delta]
+	navigate = true
+	line-numbers = true
 # Machine-specific settings (e.g. a work identity via includeIf); not tracked
 [include]
 	path = ~/.gitconfig.local

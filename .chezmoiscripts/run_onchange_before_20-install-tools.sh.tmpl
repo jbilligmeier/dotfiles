@@ -38,6 +38,20 @@ if ! have vivid; then
   install -m 755 "$tmp/vivid-$v-$ARCH-unknown-linux-musl/vivid" "$BIN/vivid"
 fi
 
+if ! have delta; then
+  echo "Installing delta"
+  v="$(gh_latest dandavison/delta)"
+  curl -fsSL "https://github.com/dandavison/delta/releases/download/$v/delta-$v-$ARCH-unknown-linux-gnu.tar.gz" | tar -xz -C "$tmp"
+  install -m 755 "$tmp/delta-$v-$ARCH-unknown-linux-gnu/delta" "$BIN/delta"
+fi
+
+if ! have lazygit; then
+  echo "Installing lazygit"
+  v="$(gh_latest jesseduffield/lazygit)"
+  lg_arch="{{ if eq .chezmoi.arch "arm64" }}arm64{{ else }}x86_64{{ end }}"
+  curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/$v/lazygit_${v#v}_linux_$lg_arch.tar.gz" | tar -xz -C "$BIN" lazygit
+fi
+
 # LazyVim needs Neovim >= 0.11.2; install a release build if apt's is older
 nvim_ok() {
   have nvim || return 1

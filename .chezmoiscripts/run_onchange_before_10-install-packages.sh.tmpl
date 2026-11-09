@@ -6,7 +6,7 @@ set -euo pipefail
 
 packages=(
   zsh git git-lfs curl wget unzip make jq
-  ripgrep fd-find fzf bat eza btop neovim build-essential
+  ripgrep fd-find fzf bat eza btop neovim build-essential zoxide
 )
 
 missing=()
@@ -37,7 +37,9 @@ set -euo pipefail
 packages=(
   git-lfs jq ripgrep fd fzf bat eza btop neovim
   starship zellij vivid tree-sitter-cli nvimpager
+  zoxide git-delta lazygit
 )
+casks=(1password-cli)
 
 installed="$(brew list --formula -1)"
 missing=()
@@ -48,5 +50,16 @@ done
 if (( ${#missing[@]} )); then
   echo "Installing Homebrew packages: ${missing[*]}"
   brew install -q "${missing[@]}"
+fi
+
+installed_casks="$(brew list --cask -1)"
+missing=()
+for c in "${casks[@]}"; do
+  grep -qx "$c" <<<"$installed_casks" || missing+=("$c")
+done
+
+if (( ${#missing[@]} )); then
+  echo "Installing Homebrew casks: ${missing[*]}"
+  brew install -q --cask "${missing[@]}"
 fi
 {{ end -}}

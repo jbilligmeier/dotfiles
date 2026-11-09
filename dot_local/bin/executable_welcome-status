@@ -5,6 +5,7 @@
 # refreshed in the background once it is 15 minutes old.
 # Services to show are listed in ~/.config/welcome/services, one
 # "launchd-or-systemd-label name" pair per line; the line is skipped without it.
+# WELCOME_REPOS (space-separated globs) overrides where to look for repos.
 
 cache=${XDG_CACHE_HOME:-$HOME/.cache}/welcome
 mkdir -p $cache
@@ -16,8 +17,12 @@ green=$(c 9ece6a) red=$(c f7768e) yellow=$(c e0af68) bold=$'\e[1m' off=$'\e[0m'
 
 refresh() {
   # Repos with uncommitted changes, one or two levels under ~/development
-  for g in ~/development/*/.git(N) ~/development/*/*/.git(N); do
-    r=${g:h}; n=$(git -C $r status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+  local -a repos
+  if [[ -n $WELCOME_REPOS ]]; then repos=(${~=WELCOME_REPOS}(N))
+  else repos=(~/development/*/.git(N:h) ~/development/*/*/.git(N:h)); fi
+  for r in $repos; do
+    [[ -e $r/.git ]] || continue
+    n=$(git -C $r status --porcelain 2>/dev/null | wc -l | tr -d ' ')
     (( n > 0 )) && print "$n ${r:t}"
   done | sort -rn > $cache/dirty.tmp && mv $cache/dirty.tmp $cache/dirty
   if (( $+commands[brew] )); then
@@ -38,7 +43,7 @@ case $1 in
     elif (( h < 12 )); then g="good morning"
     elif (( h < 18 )); then g="good afternoon"
     else g="good evening"; fi
-    name=${WELCOME_NAME:-${${(L)$(id -F 2>/dev/null || getent passwd $USER | cut -d: -f5)}[(w)1]}}
+    name=${WELCOME_NAME:-${${(L)$(id -F 2>/dev/null || getent passwd $USER | cut -d: -f5 | cut -d, -f1)}[(w)1]}}
     print -n "${bold}${mag}${g}, ${name:-$USER}${off}  ${dim}${HOST%%.*} · $(date '+%a %b %-d · %-I:%M%p' | tr '[:upper:]' '[:lower:]')${off}"
     ;;
   services)

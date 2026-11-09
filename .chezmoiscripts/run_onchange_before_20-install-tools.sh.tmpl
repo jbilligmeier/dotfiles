@@ -34,8 +34,9 @@ fi
 if ! have vivid; then
   echo "Installing vivid"
   v="$(gh_latest sharkdp/vivid)"
-  curl -fsSL "https://github.com/sharkdp/vivid/releases/download/$v/vivid-$v-$ARCH-unknown-linux-musl.tar.gz" | tar -xz -C "$tmp"
-  install -m 755 "$tmp/vivid-$v-$ARCH-unknown-linux-musl/vivid" "$BIN/vivid"
+  # GNU builds: vivid publishes no aarch64 musl build
+  curl -fsSL "https://github.com/sharkdp/vivid/releases/download/$v/vivid-$v-$ARCH-unknown-linux-gnu.tar.gz" | tar -xz -C "$tmp"
+  install -m 755 "$tmp/vivid-$v-$ARCH-unknown-linux-gnu/vivid" "$BIN/vivid"
 fi
 
 if ! have delta; then

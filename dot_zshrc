@@ -138,6 +138,15 @@ autoload -Uz bashcompinit && bashcompinit
 # Machine-specific settings and secrets that don't belong in the dotfiles repo
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
+# Welcome screen (fastfetch + welcome-status): once per terminal, only in the
+# first zellij pane, never in Claude Code's shell, and not again on `reload`.
+alias welcome=fastfetch
+if [[ -z $CLAUDECODE && -z $_welcome_shown && -t 1 ]] && (( $+commands[fastfetch] && COLUMNS >= 70 )) \
+   && [[ -z $ZELLIJ || $ZELLIJ_PANE_ID == 0 ]]; then
+  fastfetch
+fi
+_welcome_shown=1
+
 # Warn when managed dotfiles have drifted from the chezmoi source
 # (e.g. someone edited ~/.zshrc directly). Fix with `cz re-add` or `cz apply`.
 if (( $+commands[chezmoi] )) && ! chezmoi verify >/dev/null 2>&1; then

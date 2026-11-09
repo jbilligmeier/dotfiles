@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+# ABOUTME: Status lines for the fastfetch welcome screen (see ~/.config/fastfetch).
+# Usage: welcome-status greeting|services|devbox|dirty|brew|refresh
+# Slow checks (dirty repos, outdated brew packages) come from a cache that is
+# refreshed in the background once it is 15 minutes old.
+# Services to show are listed in ~/.config/welcome/services, one
+# "launchd-or-systemd-label name" pair per line; the line is skipped without it.
+
+cache=${XDG_CACHE_HOME:-$HOME/.cache}/welcome
+mkdir -p $cache
+
+# Tokyo Night colors
+c() { printf '\e[38;2;%d;%d;%dm' 0x${1:0:2} 0x${1:2:2} 0x${1:4:2} }
+fg=$(c c0caf5) dim=$(c 565f89) mag=$(c bb9af7)
+green=$(c 9ece6a) red=$(c f7768e) yellow=$(c e0af68) bold=$'\e[1m' off=$'\e[0m'
+
+refresh() {
+  # Repos with uncommitted changes, one or two levels under ~/development
+  for g in ~/development/*/.git(N) ~/development/*/*/.git(N); do
+    r=${g:h}; n=$(git -C $r status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    (( n > 0 )) && print "$n ${r:t}"
+  done | sort -rn > $cache/dirty.tmp && mv $cache/dirty.tmp $cache/dirty
+  if (( $+commands[brew] )); then
+    brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ' > $cache/brew.tmp && mv $cache/brew.tmp $cache/brew
+  fi
+}
+
+refresh_if_stale() {
+  [[ -f $cache/dirty && -z $cache/dirty(#qNmm+15) ]] && return
+  # Detach fully: fastfetch waits for this command's output to close
+  ( refresh >/dev/null 2>&1 </dev/null & )
+}
+
+case $1 in
+  greeting)
+    h=$(date +%H)
+    if (( h < 5 )); then g="burning the midnight oil"
+    elif (( h < 12 )); then g="good morning"
+    elif (( h < 18 )); then g="good afternoon"
+    else g="good evening"; fi
+    name=${WELCOME_NAME:-${${(L)$(id -F 2>/dev/null || getent passwd $USER | cut -d: -f5)}[(w)1]}}
+    print -n "${bold}${mag}${g}, ${name:-$USER}${off}  ${dim}${HOST%%.*} · $(date '+%a %b %-d · %-I:%M%p' | tr '[:upper:]' '[:lower:]')${off}"
+    ;;
+  services)
+    [[ -f ~/.config/welcome/services ]] || exit 0
+    if [[ $OSTYPE == darwin* ]]; then running=$(launchctl list 2>/dev/null)
+    else running=$(systemctl --user list-units --state=running --no-legend 2>/dev/null); fi
+    out=()
+    while read -r label name; do
+      [[ -z $label || $label == \#* ]] && continue
+      if [[ $OSTYPE == darwin* ]]; then
+        pid=$(awk -v l=$label '$3==l{print $1}' <<<$running)
+        [[ -n $pid && $pid != - ]] && up=1 || up=0
+      else
+        grep -q "^ *$label" <<<$running && up=1 || up=0
+      fi
+      (( up )) && out+="${green}●${off} ${name}" || out+="${red}● ${name}${off}"
+    done < ~/.config/welcome/services
+    print -n "${(j:  :)out}"
+    ;;
+  devbox)
+    (( $+commands[docker] )) || exit 0
+    ctrs=(${(f)"$(docker ps --format '{{.Names}}' 2>/dev/null | sed -n 's/-workspace$//p')"})
+    (( $#ctrs )) && print -n "${(j: · :)ctrs}" || print -n "${dim}none running${off}"
+    ;;
+  dirty)
+    refresh_if_stale
+    [[ -s $cache/dirty ]] || { [[ -f $cache/dirty ]] && print -n "${green}all clean${off}"; exit 0; }
+    total=$(wc -l < $cache/dirty | tr -d ' ')
+    print -n "$(head -3 $cache/dirty | awk -v d="$dim" -v o="$off" '{printf "%s%s(%s)%s  ", $2, d, $1, o}')"
+    (( total > 3 )) && print -n "${dim}+$(( total - 3 ))${off}"
+    ;;
+  brew)
+    [[ -f $cache/brew ]] || exit 0
+    n=$(<$cache/brew)
+    (( n == 0 )) && print -n "${green}up to date${off}" || print -n "${yellow}${n} outdated${off}  ${dim}brew upgrade${off}"
+    ;;
+  refresh)
+    refresh
+    ;;
+esac

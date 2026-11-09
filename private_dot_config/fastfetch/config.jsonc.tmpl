@@ -1,0 +1,31 @@
+// Welcome screen shown by ~/.zshrc: small logo in Tokyo Night colors, system
+// info, then status lines from ~/.local/bin/welcome-status.
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "small",
+    "padding": { "top": 1, "left": 2, "right": 3 },
+    "color": { "1": "#9ece6a", "2": "#e0af68", "3": "#ff9e64", "4": "#f7768e", "5": "#bb9af7", "6": "#7aa2f7" }
+  },
+  "display": {
+    "separator": "",
+    "color": { "keys": "#7aa2f7", "output": "#c0caf5" },
+    "percent": { "color": { "green": "#9ece6a", "yellow": "#e0af68", "red": "#f7768e" } }
+  },
+  "modules": [
+    "break",
+    { "type": "command", "key": " ", "text": "welcome-status greeting" },
+    "break",
+    { "type": "os", "key": "os        ", "format": "{name} {version}" },
+    { "type": "cpu", "key": "cpu       ", "format": "{name} · {cores-physical} cores" },
+    { "type": "memory", "key": "mem       ", "format": "{used} / {total} ({percentage})" },
+    { "type": "disk", "key": "disk      ", "folders": "{{ if eq .chezmoi.os "darwin" }}/System/Volumes/Data{{ else }}/{{ end }}", "format": "{size-used} / {size-total} ({size-percentage})" },
+    { "type": "uptime", "key": "up        " },
+    { "type": "command", "key": "services  ", "text": "welcome-status services" },
+    { "type": "command", "key": "devbox    ", "text": "welcome-status devbox" },
+    { "type": "command", "key": "dirty     ", "text": "welcome-status dirty" },
+    { "type": "command", "key": "brew      ", "text": "welcome-status brew" },
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;247;118;142m● \u001b[38;2;255;158;100m● \u001b[38;2;224;175;104m● \u001b[38;2;158;206;106m● \u001b[38;2;125;207;255m● \u001b[38;2;122;162;247m● \u001b[38;2;187;154;247m●" }
+  ]
+}

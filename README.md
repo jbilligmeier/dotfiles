@@ -26,5 +26,9 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin init --apply jbilligmeie
   and sync LazyVim plugins.
 - `.eza/` holds the vendored Tokyo Night eza theme plus custom colors;
   `private_dot_config/eza/theme.yml.tmpl` merges them. Edit `.eza/extensions.yml`.
+- New shells open with a welcome screen: fastfetch
+  (`private_dot_config/fastfetch/`) plus status lines from `welcome-status`.
+  List services to watch in `~/.config/welcome/services` (not tracked);
+  run `welcome` to show it again.
 - Machine-specific settings and secrets go in `~/.zshrc.local` and
   `~/.gitconfig.local` (not tracked).

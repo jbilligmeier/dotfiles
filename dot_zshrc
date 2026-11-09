@@ -140,8 +140,9 @@ function shortcuts() {
     echo ""
 }
 
-# Show terminal colors vs standard xterm colors
-function colors() {
+# Show terminal colors vs standard xterm colors. Not named `colors`: that would
+# replace zsh's own colors function, which oh-my-zsh calls on every source.
+function termcolors() {
   printf " Foreground  \n"
   printf "\e[7m Background  \e[0m\n"
 

@@ -7,11 +7,13 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
   git clone -q --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
 fi
 
+# $USER is unset in some environments (e.g. Docker builds)
+user="${USER:-$(id -un)}"
 if [ "$(uname)" = Darwin ]; then
-  login_shell="$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')"
+  login_shell="$(dscl . -read "/Users/$user" UserShell | awk '{print $2}')"
 else
-  login_shell="$(getent passwd "$USER" | cut -d: -f7)"
+  login_shell="$(getent passwd "$user" | cut -d: -f7)"
 fi
 if command -v zsh >/dev/null && [ "$(basename "$login_shell")" != "zsh" ]; then
-  sudo chsh -s "$(command -v zsh)" "$USER"
+  sudo chsh -s "$(command -v zsh)" "$user"
 fi

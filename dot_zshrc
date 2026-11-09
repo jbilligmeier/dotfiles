@@ -143,7 +143,7 @@ autoload -Uz bashcompinit && bashcompinit
 alias welcome=fastfetch
 if [[ -z $CLAUDECODE && -z $_welcome_shown && -t 1 ]] && (( $+commands[fastfetch] && COLUMNS >= 70 )) \
    && [[ -z $ZELLIJ || $ZELLIJ_PANE_ID == 0 ]]; then
-  fastfetch
+  fastfetch; print  # fastfetch leaves the last line unterminated
 fi
 _welcome_shown=1
 

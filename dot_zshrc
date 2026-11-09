@@ -21,10 +21,10 @@ plugins=(
     git-commit
     gh
     npm
-    ubuntu
     history
     history-substring-search
 )
+[[ "$OSTYPE" == linux* ]] && plugins+=(ubuntu)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -56,7 +56,8 @@ if [[ -z "$CLAUDECODE" ]]; then
   alias ll='eza -l --icons --group-directories-first'
   alias la='eza -la --icons --group-directories-first'
   alias tree='eza --tree --git-ignore'
-  alias cat='batcat'
+  # Debian/Ubuntu install bat as batcat
+  (( $+commands[batcat] )) && alias cat='batcat' || alias cat='bat'
   # rocketgrep: skip CSVs
   alias rg='rg --glob "!*.csv"'
   # Lets exclude some stuff from grep
@@ -71,9 +72,10 @@ alias zj=zellij-wrapper
 # Alias terraform
 alias tf=terraform
 
-# fd
-alias f=fdfind
-alias v='nvim $(fdfind --type f | fzf)'
+# fd (Debian/Ubuntu install it as fdfind)
+(( $+commands[fdfind] )) && alias fd=fdfind
+alias f=fd
+alias v='nvim $(fd --type f | fzf)'
 
 # Git alias to show all changes including untracked files
 alias gdall='git add -N . && git diff'
@@ -93,6 +95,9 @@ else
   # Don't draw warning boxes around group/other-writable directories
   export LS_COLORS="${LS_COLORS}:ow=01;34"
 fi
+
+# eza otherwise looks in ~/Library/Application Support/eza on macOS
+export EZA_CONFIG_DIR="$HOME/.config/eza"
 
 # Setup editor
 export EDITOR=nvim

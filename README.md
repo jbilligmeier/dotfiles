@@ -1,6 +1,6 @@
 # dotfiles
 
-Josh's personal dotfiles, managed with [chezmoi](https://chezmoi.io). Linux for now.
+Josh's personal dotfiles, managed with [chezmoi](https://chezmoi.io). Linux and macOS.
 
 ## New machine
 
@@ -21,8 +21,10 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin init --apply jbilligmeie
 ## Layout
 
 - `dot_*` files map to `~/.*`; `*.tmpl` files are templates.
-- `.chezmoiscripts/` install apt packages, GitHub-release tools (into
-  `~/.local/bin`), oh-my-zsh, and sync LazyVim plugins.
+- `.chezmoiscripts/` install apt packages and GitHub-release tools (into
+  `~/.local/bin`) on Linux or Homebrew packages on macOS, install oh-my-zsh,
+  and sync LazyVim plugins.
 - `.eza/` holds the vendored Tokyo Night eza theme plus custom colors;
   `dot_config/eza/theme.yml.tmpl` merges them. Edit `.eza/extensions.yml`.
-- Machine-specific settings and secrets go in `~/.zshrc.local` (not tracked).
+- Machine-specific settings and secrets go in `~/.zshrc.local` and
+  `~/.gitconfig.local` (not tracked).

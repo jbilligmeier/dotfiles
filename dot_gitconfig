@@ -2,9 +2,16 @@
 	name = Josh Billigmeier
 	email = joshua@billigmeier.org
 [credential "https://github.com"]
-	helper = !/usr/bin/gh auth git-credential
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
 [filter "lfs"]
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+# Machine-specific settings (e.g. a work identity via includeIf); not tracked
+[include]
+	path = ~/.gitconfig.local

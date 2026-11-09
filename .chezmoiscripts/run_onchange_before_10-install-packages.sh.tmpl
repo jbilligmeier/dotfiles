@@ -6,7 +6,7 @@ set -euo pipefail
 
 packages=(
   zsh git git-lfs curl wget unzip make jq
-  ripgrep fd-find fzf bat eza btop tmux neovim build-essential
+  ripgrep fd-find fzf bat eza btop neovim build-essential
 )
 
 missing=()
@@ -26,5 +26,27 @@ if (( ${#missing[@]} )); then
     echo "Installing apt packages: ${available[*]}"
     sudo apt-get install -y -qq "${available[@]}"
   fi
+fi
+{{ else if and (eq .chezmoi.os "darwin") (lookPath "brew") -}}
+#!/usr/bin/env bash
+# Install Homebrew packages (covers what the Linux tools script fetches from
+# GitHub, too). Re-runs whenever this list changes; only calls brew when
+# something is actually missing.
+set -euo pipefail
+
+packages=(
+  git-lfs jq ripgrep fd fzf bat eza btop neovim
+  starship zellij vivid tree-sitter-cli nvimpager
+)
+
+installed="$(brew list --formula -1)"
+missing=()
+for p in "${packages[@]}"; do
+  grep -qx "$p" <<<"$installed" || missing+=("$p")
+done
+
+if (( ${#missing[@]} )); then
+  echo "Installing Homebrew packages: ${missing[*]}"
+  brew install -q "${missing[@]}"
 fi
 {{ end -}}

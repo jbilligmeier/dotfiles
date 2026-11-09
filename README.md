@@ -25,6 +25,6 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin init --apply jbilligmeie
   `~/.local/bin`) on Linux or Homebrew packages on macOS, install oh-my-zsh,
   and sync LazyVim plugins.
 - `.eza/` holds the vendored Tokyo Night eza theme plus custom colors;
-  `dot_config/eza/theme.yml.tmpl` merges them. Edit `.eza/extensions.yml`.
+  `private_dot_config/eza/theme.yml.tmpl` merges them. Edit `.eza/extensions.yml`.
 - Machine-specific settings and secrets go in `~/.zshrc.local` and
   `~/.gitconfig.local` (not tracked).
